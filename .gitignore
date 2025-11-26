@@ -1,9 +1,11 @@
 .gitignore
 ### TERRAFORM ###
+backend.hcl
 .terraform/
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
+
 crash.log
 override.tf
 override.tf.json
