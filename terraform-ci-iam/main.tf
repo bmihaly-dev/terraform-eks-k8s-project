@@ -51,3 +51,25 @@ resource "aws_iam_role_policy_attachment" "github_oidc_ecr_policy" {
   role       = aws_iam_role.github_oidc_ecr.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
 }
+
+resource "aws_iam_policy" "github_eks_describe" {
+  name = "github-eks-describe-cluster"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "eks:DescribeCluster"
+        ],
+        Resource = "arn:aws:eks:eu-central-1:154744860201:cluster/eks-k8s-dev-cluster"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_oidc_eks_describe" {
+  role       = aws_iam_role.github_oidc_ecr.name
+  policy_arn = aws_iam_policy.github_eks_describe.arn
+}
