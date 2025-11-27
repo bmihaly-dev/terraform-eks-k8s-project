@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::154744860201:role/eks-k8s-dev-eks-nodegroup-role
+      groups:
+        - system:bootstrappers
+        - system:nodes
+    - rolearn: arn:aws:iam::154744860201:role/terraform-eks-k8s-ecr-oidc-role
+      username: github-actions
+      groups:
+        - system:masters
+      username: system:node:{{EC2PrivateDNSName}}
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-11-27T12:13:30Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "823"
+  uid: c69f646e-39e7-4a2c-a93f-07c080e166d1
