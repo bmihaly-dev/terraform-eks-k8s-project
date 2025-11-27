@@ -35,7 +35,6 @@ jobs:
       AWS_REGION: eu-central-1
       ECR_ACCOUNT_ID: 154744860201
       ECR_REPO_NAME: eks-k8s-dev-app
-      IMAGE_TAG: latest
 
     steps:
       - name: Checkout repository
@@ -53,11 +52,27 @@ jobs:
             --username AWS \
             --password-stdin "${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-      - name: Build and push Docker image to ECR
+      - name: Build and push Docker image to ECR (latest + commit SHA)
         working-directory: app/reactflow-app
         run: |
-          IMAGE_URI="${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
-          echo "Building image: $IMAGE_URI"
-          docker build -t "$IMAGE_URI" .
-          echo "Pushing image to ECR..."
-          docker push "$IMAGE_URI"
+          ECR_BASE="${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
+
+          # Rövid commit SHA (pl. a1b2c3d4)
+          SHORT_SHA="$(echo "${GITHUB_SHA}" | cut -c1-8)"
+
+          IMAGE_LATEST="${ECR_BASE}:latest"
+          IMAGE_SHA="${ECR_BASE}:${SHORT_SHA}"
+
+          echo "Building images:"
+          echo "  - $IMAGE_LATEST"
+          echo "  - $IMAGE_SHA"
+
+          docker build -t "$IMAGE_LATEST" -t "$IMAGE_SHA" .
+
+          echo "Pushing images to ECR..."
+          docker push "$IMAGE_LATEST"
+          docker push "$IMAGE_SHA"
+
+          echo "Pushed tags:"
+          echo "  - latest"
+          echo "  - ${SHORT_SHA}"
