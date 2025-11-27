@@ -80,6 +80,11 @@ jobs:
           K8S_NAMESPACE: eks-k8s-dev-app
           K8S_DEPLOYMENT: eks-k8s-dev-app
         run: |
+          # Kubeconfig beállítása EKS-hez – INNEN lesz context, nem localhost:8080
+          aws eks update-kubeconfig \
+            --region "$AWS_REGION" \
+            --name "eks-k8s-dev-cluster"
+
           ECR_BASE="${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
           SHORT_SHA="$(echo "${GITHUB_SHA}" | cut -c1-8)"
           IMAGE_SHA="${ECR_BASE}:${SHORT_SHA}"
