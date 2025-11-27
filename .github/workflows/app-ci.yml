@@ -75,24 +75,20 @@ jobs:
           echo "Pushed tags:"
           echo "  - latest"
           echo "  - ${SHORT_SHA}"
-      - name: Update kubeconfig for EKS cluster
-        run: |
-          aws eks update-kubeconfig \
-            --region "$AWS_REGION" \
-            --name "eks-k8s-dev-cluster"
-
       - name: Update Deployment image and wait for rollout
+        env:
+          K8S_NAMESPACE: eks-k8s-dev-app
+          K8S_DEPLOYMENT: eks-k8s-dev-app
         run: |
           ECR_BASE="${ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
           SHORT_SHA="$(echo "${GITHUB_SHA}" | cut -c1-8)"
           IMAGE_SHA="${ECR_BASE}:${SHORT_SHA}"
 
-          echo "Updating Deployment to image: $IMAGE_SHA"
+          echo "Patching deployment image to: $IMAGE_SHA"
 
-          kubectl set image deployment/eks-k8s-dev-app \
-            eks-k8s-dev-app="$IMAGE_SHA" \
-            -n eks-k8s-dev-app
+          kubectl patch deployment "$K8S_DEPLOYMENT" -n "$K8S_NAMESPACE" \
+            --type=json \
+            -p="[ { \"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\": \"${IMAGE_SHA}\" } ]"
 
           echo "Waiting for rollout to complete..."
-          kubectl rollout status deployment/eks-k8s-dev-app -n eks-k8s-dev-app
-
+          kubectl rollout status deployment/"$K8S_DEPLOYMENT" -n "$K8S_NAMESPACE"
