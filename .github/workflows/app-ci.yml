@@ -1,4 +1,4 @@
-name: App CI test
+name: App CI
 
 on:
   push:
@@ -20,3 +20,17 @@ jobs:
           echo
           echo "Repo files:"
           ls -R
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: ci-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build app Docker image
+        working-directory: app/reactflow-app
+        run: |
+          echo "Building Docker image from app/reactflow-app..."
+          docker build -t eks-k8s-app-ci:test .
