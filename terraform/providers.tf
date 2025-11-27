@@ -4,10 +4,16 @@ provider "aws" {
 
 data "aws_eks_cluster" "this" {
   name = module.eks.cluster_name
+
+  # FONTOS: várja meg, míg az EKS modul létrehozza a clustert
+  depends_on = [module.eks]
 }
 
 data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
+
+  # Ugyanígy: csak akkor fusson le, ha a cluster már kész
+  depends_on = [module.eks]
 }
 
 provider "kubernetes" {

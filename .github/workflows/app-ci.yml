@@ -1,0 +1,22 @@
+name: App CI test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show repo structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo
+          echo "Repo files:"
+          ls -R

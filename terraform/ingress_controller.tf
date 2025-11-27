@@ -6,8 +6,7 @@ resource "helm_release" "ingress_nginx" {
 
   create_namespace = true
 
-  # Service type = LoadBalancer beállítás values-ban,
-  # így nem kell set blokk, nem fogja aláhúzni semmi
+  
   values = [
     yamlencode({
       controller = {
